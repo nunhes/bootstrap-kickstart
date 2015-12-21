@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var less = require('gulp-less');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
+var duration = require('gulp-duration');
 var del = require('del');
 
 
@@ -33,9 +34,14 @@ gulp.task('copyToServer', function() {
 });
 
 gulp.task('styles', function() {
+	var lessTimer = duration('less compiling')
+  var prefixerTimer = duration('auto prefixing')
 	return gulp.src('./assets/less/index.less')
 		.pipe(sourcemaps.init())
+		.once('data', lessTimer.start)
 		.pipe(less())
+		.pipe(lessTimer)
+		.once('data', prefixerTimer.start)
 		.pipe(autoprefixer({
 			browsers: [
 					'> 1%',
@@ -46,6 +52,7 @@ gulp.task('styles', function() {
 					'Opera 12.1'
 				]
 		}))
+		.pipe(prefixerTimer)
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest('./assets/css'));
 });

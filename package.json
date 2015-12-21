@@ -56,6 +56,7 @@
     "grunt-uncss": "0.4.4",
     "gulp": "gulpjs/gulp#4.0",
     "gulp-autoprefixer": "^3.1.0",
+    "gulp-duration": "0.0.0",
     "gulp-less": "^3.0.5",
     "gulp-sourcemaps": "^1.6.0",
     "load-grunt-tasks": "3.3.0",
