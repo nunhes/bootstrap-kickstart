@@ -690,4 +690,10 @@ module.exports = function (grunt) {
 		['bump-only:major', 'build', 'clean:js', 'changelog', 'gitadd', 'bump-commit', 'compress']
 	);
 
+	grunt.registerTask('styles', [
+			'less:dev',
+			'autoprefixer'
+		]
+	);
+
 };
