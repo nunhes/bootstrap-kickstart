@@ -53,9 +53,12 @@
     "grunt-processhtml": "0.3.8",
     "grunt-shell": "1.1.2",
     "grunt-uncss": "0.4.4",
+    "gulp": "gulpjs/gulp#4.0",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-less": "^3.0.5",
+    "gulp-sourcemaps": "^1.6.0",
     "load-grunt-tasks": "3.3.0",
-    "time-grunt": "1.2.2",
-    "gulp": "gulpjs/gulp#4.0"
+    "time-grunt": "1.2.2"
   },
   "scripts": {
     "postinstall": "chmod u+x .postinstall.js && ./.postinstall.js"
