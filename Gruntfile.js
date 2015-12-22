@@ -691,9 +691,8 @@ module.exports = function (grunt) {
 	);
 
 	grunt.registerTask('styles', [
-			'less:dev',
-			'autoprefixer'
-		]
-	);
+		'less:dev',
+		'autoprefixer'
+	]);
 
 };
