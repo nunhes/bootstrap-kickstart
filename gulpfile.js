@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var notify = require("gulp-notify");
 var less = require('gulp-less');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
@@ -30,7 +31,7 @@ gulp.task('copyToServer', function() {
 				], {
 			base: './'
 		})
-		.pipe(gulp.dest('./server'));
+		.pipe(gulp.dest('./' + config.server));
 });
 
 gulp.task('styles', function() {
@@ -40,6 +41,12 @@ gulp.task('styles', function() {
 		.pipe(sourcemaps.init())
 		.once('data', lessTimer.start)
 		.pipe(less())
+		.on('error', notify.onError({
+				message: 'Error: <%= error.message %>'
+			}))
+		.on('error', function(err) {
+				console.log('Error:', err);
+			})
 		.pipe(lessTimer)
 		.once('data', prefixerTimer.start)
 		.pipe(autoprefixer({
