@@ -35,20 +35,12 @@ gulp.task('copyToServer', function() {
 });
 
 gulp.task('styles', function() {
-	var lessTimer = duration('less compiling')
-  var prefixerTimer = duration('auto prefixing')
 	return gulp.src('./assets/less/index.less')
 		.pipe(sourcemaps.init())
-		.once('data', lessTimer.start)
 		.pipe(less())
 		.on('error', notify.onError({
-				message: 'Error: <%= error.message %>'
-			}))
-		.on('error', function(err) {
-				console.log('Error:', err);
-			})
-		.pipe(lessTimer)
-		.once('data', prefixerTimer.start)
+			message: '\nError: <%= error.message %>'
+		}))
 		.pipe(autoprefixer({
 			browsers: [
 					'> 1%',
@@ -59,7 +51,6 @@ gulp.task('styles', function() {
 					'Opera 12.1'
 				]
 		}))
-		.pipe(prefixerTimer)
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest('./assets/css'));
 });
