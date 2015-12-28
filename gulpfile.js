@@ -9,6 +9,7 @@ var del = require('del');
 
 // Configurable paths
 var	config = {
+	src: './src-for-gulp/',
 	dist: 'dist',
 	reports: 'reports',
 	docs: 'docs',
@@ -16,15 +17,23 @@ var	config = {
 };
 
 gulp.task('cleanServer', function() {
-	return del(['./server/**/*']);
+	return del(['./' + config.server + '/**/*']);
 });
 
-gulp.task('copyToServer', function() {
+gulp.task('copyAssetsToServer', function() {
 	return gulp.src([
-					'./assets/css/**/*',
-					'./assets/js/**/*',
-					'./assets/fonts/**/*',
-					'./assets/img/**/*',
+					config.src + 'assets/css/**/*',
+					config.src + 'assets/js/**/*',
+					config.src + 'assets/fonts/**/*',
+					config.src + 'assets/img/**/*'
+				], {
+			base: config.src
+		})
+		.pipe(gulp.dest('./' + config.server));
+});
+
+gulp.task('copyLibsToServer', function() {
+	return gulp.src([
 					'./libs/**/*.js',
 					'./libs/**/*.css',
 					'./libs/bootstrap/fonts/*'
@@ -35,7 +44,7 @@ gulp.task('copyToServer', function() {
 });
 
 gulp.task('styles', function() {
-	return gulp.src('./assets/less/index.less')
+	return gulp.src(config.src + 'assets/less/index.less')
 		.pipe(sourcemaps.init())
 		.pipe(less())
 		.on('error', notify.onError({
@@ -64,7 +73,7 @@ gulp.task('scripts', function(done) {
  * A task for development
  */
 gulp.task('dev',
-	gulp.series('cleanServer', gulp.parallel('scripts', 'styles'), 'copyToServer'), function() {
+	gulp.series('cleanServer', gulp.parallel('scripts', 'styles', 'copyLibsToServer'), 'copyAssetsToServer'), function() {
 		console.log('done with dev');
 	}
 );
