@@ -72,7 +72,7 @@ gulp.task('html', function () {
 	return gulp.src(config.src + '*.hbs')
 		.pipe(frontmatter({ property: 'data' }))
 		.pipe(handlebars({
-			debug: true,
+			// debug: true,
 			data: config.src + 'data/*.js',
 			helpers: [
 				'./node_modules/handlebars-layouts/index.js',
@@ -88,7 +88,9 @@ gulp.task('html', function () {
  * A task for development
  */
 gulp.task('dev',
-	gulp.series('cleanServer', gulp.parallel('scripts', 'styles', 'copyLibsToServer'), 'copyAssetsToServer'), function() {
-		console.log('done with dev');
-	}
+	gulp.series(
+		'cleanServer',
+		gulp.parallel('scripts', 'styles', 'copyLibsToServer', 'html'),
+		'copyAssetsToServer'
+	)
 );
