@@ -5,14 +5,13 @@ var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
 var duration = require('gulp-duration');
 var del = require('del');
-
+var frontmatter = require('gulp-front-matter');
+var handlebars = require('gulp-hb');
+var rename = require('gulp-rename');
 
 // Configurable paths
 var	config = {
 	src: './src-for-gulp/',
-	dist: 'dist',
-	reports: 'reports',
-	docs: 'docs',
 	server: 'server'
 };
 
@@ -67,6 +66,22 @@ gulp.task('styles', function() {
 gulp.task('scripts', function(done) {
 	console.log('Nothing happening yet.');
 	done();
+});
+
+gulp.task('html', function () {
+	return gulp.src(config.src + '*.hbs')
+		.pipe(frontmatter({ property: 'data' }))
+		.pipe(handlebars({
+			debug: true,
+			data: config.src + 'data/*.js',
+			helpers: [
+				'./node_modules/handlebars-layouts/index.js',
+				config.src + 'helpers/*.js'
+			],
+			partials: config.src + 'partials/*.hbs'
+		}))
+		.pipe(rename({extname: '.html'}))
+		.pipe(gulp.dest('./' + config.server));
 });
 
 /**
