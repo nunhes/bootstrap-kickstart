@@ -10,6 +10,7 @@ var handlebars = require('gulp-hb');
 var rename = require('gulp-rename');
 var validator = require('gulp-html');
 var logger = require('gulp-logger');
+var bootlint  = require('gulp-bootlint');
 
 // Configurable paths
 var	config = {
@@ -114,6 +115,13 @@ gulp.task('htmllint', function () {
 			after: 'Validator complete!'
 		}))
 		.pipe(validator())
+		.on('error', notify.onError({
+			message: '\nError: <%= error.message %>'
+		}))
+		.pipe(bootlint({
+			stoponerror: true,
+			stoponwarning: true,
+		}))
 		.on('error', notify.onError({
 			message: '\nError: <%= error.message %>'
 		}));
