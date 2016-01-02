@@ -8,7 +8,7 @@ var frontmatter = require('gulp-front-matter');
 var handlebars = require('gulp-hb');
 var rename = require('gulp-rename');
 var validator = require('gulp-html');
-var logger = require('gulp-logger');
+// var logger = require('gulp-logger');
 var bootlint = require('gulp-bootlint');
 var eslint = require('gulp-eslint');
 
@@ -125,10 +125,6 @@ gulp.task('html', function () {
 
 gulp.task('htmllint', function () {
 	return gulp.src('./' + config.server + '/*.html')
-		.pipe(logger({
-			before: 'Starting validator',
-			after: 'Validator complete!'
-		}))
 		.pipe(validator())
 		.on('error', notify.onError({
 			message: '\nError: <%= error.message %>'
@@ -151,7 +147,6 @@ gulp.task('dev',
 	gulp.series(
 		'cleanServer',
 		gulp.parallel('scripts', 'css', 'copyLibsToServer', 'html'),
-		'htmllint',
-		'copyAssetsToServer'
+		gulp.parallel('htmllint', 'copyAssetsToServer')
 	)
 );
