@@ -10,7 +10,8 @@ var handlebars = require('gulp-hb');
 var rename = require('gulp-rename');
 var validator = require('gulp-html');
 var logger = require('gulp-logger');
-var bootlint  = require('gulp-bootlint');
+var bootlint = require('gulp-bootlint');
+var eslint = require('gulp-eslint');
 
 // Configurable paths
 var	config = {
@@ -86,9 +87,19 @@ gulp.task('css', function() {
  * ***** JS tasks *****
  * ********************
  */
-gulp.task('scripts', function(done) {
-	console.log('Nothing happening yet.');
-	done();
+gulp.task('scripts', function (done) {
+	return gulp.src([
+		'.postinstall.js',
+		'gulpfile.js',
+		config.src + 'helpers/*.js',
+		config.src + 'assets/js/*.js',
+	])
+	.pipe(eslint())
+	.pipe(eslint.format())
+	.pipe(eslint.failAfterError())
+	.on('error', notify.onError({
+		message: '\nError: <%= error.message %>'
+	}));
 });
 
 gulp.task('html', function () {
