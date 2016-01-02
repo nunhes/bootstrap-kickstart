@@ -1,9 +1,8 @@
 var gulp = require('gulp');
-var notify = require("gulp-notify");
+var notify = require('gulp-notify');
 var less = require('gulp-less');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
-var duration = require('gulp-duration');
 var del = require('del');
 var frontmatter = require('gulp-front-matter');
 var handlebars = require('gulp-hb');
@@ -24,7 +23,7 @@ var	config = {
  * ***** Clean tasks *****
  * ***********************
  */
-gulp.task('cleanServer', function() {
+gulp.task('cleanServer', function () {
 	return del(['./' + config.server + '/**/*']);
 });
 
@@ -33,27 +32,26 @@ gulp.task('cleanServer', function() {
  * ***** Copy tasks *****
  * **********************
  */
-gulp.task('copyAssetsToServer', function() {
+gulp.task('copyAssetsToServer', function () {
 	return gulp.src([
-					config.src + 'assets/css/**/*',
-					config.src + 'assets/js/**/*',
-					config.src + 'assets/fonts/**/*',
-					config.src + 'assets/img/**/*'
-				], {
-			base: config.src
-		})
-		.pipe(gulp.dest('./' + config.server));
+		config.src + 'assets/css/**/*',
+		config.src + 'assets/fonts/**/*',
+		config.src + 'assets/img/**/*'
+	], {
+		base: config.src
+	})
+	.pipe(gulp.dest('./' + config.server));
 });
 
-gulp.task('copyLibsToServer', function() {
+gulp.task('copyLibsToServer', function () {
 	return gulp.src([
-					'./libs/**/*.js',
-					'./libs/**/*.css',
-					'./libs/bootstrap/fonts/*'
-				], {
-			base: './'
-		})
-		.pipe(gulp.dest('./' + config.server));
+		'./libs/**/*.js',
+		'./libs/**/*.css',
+		'./libs/bootstrap/fonts/*'
+	], {
+		base: './'
+	})
+	.pipe(gulp.dest('./' + config.server));
 });
 
 /*
@@ -61,7 +59,7 @@ gulp.task('copyLibsToServer', function() {
  * ***** CSS tasks *****
  * *********************
  */
-gulp.task('css', function() {
+gulp.task('css', function () {
 	return gulp.src(config.src + 'assets/less/index.less')
 		.pipe(sourcemaps.init())
 		.pipe(less())
@@ -70,13 +68,13 @@ gulp.task('css', function() {
 		}))
 		.pipe(autoprefixer({
 			browsers: [
-					'> 1%',
-					'last 3 version',
-					'ie 8',
-					'ie 9',
-					'Firefox ESR',
-					'Opera 12.1'
-				]
+				'> 1%',
+				'last 3 version',
+				'ie 8',
+				'ie 9',
+				'Firefox ESR',
+				'Opera 12.1'
+			]
 		}))
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest('./assets/css'));
@@ -87,12 +85,12 @@ gulp.task('css', function() {
  * ***** JS tasks *****
  * ********************
  */
-gulp.task('scripts', function (done) {
+gulp.task('scripts', function () {
 	return gulp.src([
 		'.postinstall.js',
 		'gulpfile.js',
 		config.src + 'helpers/*.js',
-		config.src + 'assets/js/*.js',
+		config.src + 'assets/js/*.js'
 	])
 	.pipe(eslint())
 	.pipe(eslint.format())
@@ -102,9 +100,15 @@ gulp.task('scripts', function (done) {
 	}));
 });
 
+/*
+ * ********************
+ * ***** HTML tasks *****
+ * ********************
+ */
+
 gulp.task('html', function () {
 	return gulp.src(config.src + '*.hbs')
-		.pipe(frontmatter({ property: 'data' }))
+		.pipe(frontmatter({property: 'data'}))
 		.pipe(handlebars({
 			// debug: true,
 			data: config.src + 'data/*.js',
@@ -116,7 +120,7 @@ gulp.task('html', function () {
 		}))
 		.pipe(rename({extname: '.html'}))
 		// .pipe(validator());
-		.pipe(gulp.dest('./' + config.server))
+		.pipe(gulp.dest('./' + config.server));
 });
 
 gulp.task('htmllint', function () {
@@ -131,7 +135,7 @@ gulp.task('htmllint', function () {
 		}))
 		.pipe(bootlint({
 			stoponerror: true,
-			stoponwarning: true,
+			stoponwarning: true
 		}))
 		.on('error', notify.onError({
 			message: '\nError: <%= error.message %>'
