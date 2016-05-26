@@ -2,7 +2,6 @@
 
 var getTasks = require('load-grunt-tasks');
 var displayTime = require('time-grunt');
-var templateHelpers = require('./templates/helpers/helpers.js');
 
 // Returns a list of all css files defined in the property bundleCSS of package.json
 function getBundleCSSFiles(packageJson) {
@@ -56,43 +55,35 @@ module.exports = function (grunt) {
 						'watch',
 						'build',
 						'checkBuild',
-						'plato',
-						'jsdoc',
 						'sync',
-						'releasePatch',
-						'releaseMinor',
-						'releaseMajor',
+						'release:patch',
+						'release:minor',
+						'release:major',
 						'lint',
 						'lint:fix'
 					],
 					descriptions: {
 						watch:
 							'`grunt watch` run dev tasks whenever watched files change and ' +
-							'Reloads the browser with »LiveReload« plugin.',
-						jsdoc:
-							'`grunt jsdoc` generates source documentation using jsdoc.',
-						plato:
-							'`grunt plato` generates static code analysis charts with plato.'
+							'Reloads the browser with »LiveReload« plugin.'
 					},
 					groups: {
-						Dev: ['default', 'dev', 'sync', 'serve', 'watch', 'plato', 'jsdoc', 'lint', 'lint:fix'],
-						Production: ['build', 'checkBuild', 'releasePatch', 'releaseMinor', 'releaseMajor']
+						Dev: ['default', 'dev', 'sync', 'serve', 'watch', 'lint', 'lint:fix'],
+						Production: ['build', 'checkBuild', 'release:patch', 'release:minor', 'release:major']
 					},
 					sort: [
 						'default',
 						'dev',
 						'sync',
-						'plato',
-						'jsdoc',
 						'serve',
 						'watch',
 						'lint',
 						'eslint:fix',
 						'build',
 						'checkBuild',
-						'releasePatch',
-						'releaseMinor',
-						'releaseMajor'
+						'release:patch',
+						'release:minor',
+						'release:major'
 					]
 				}
 			}
@@ -106,7 +97,7 @@ module.exports = function (grunt) {
 						'.postinstall.js',
 						'templates/helpers/helpers.js',
 						'Gruntfile.js',
-						'assets/js/*.js'
+						'src/app/**/*.js'
 					]
 				}
 			},
@@ -140,10 +131,10 @@ module.exports = function (grunt) {
 					sourceMap: false
 				},
 				files: {
-					'<%= config.dist %>/assets/js/built.min.js': [
-						'server/assets/js/vendor.js',
+					'<%= config.dist %>/app/built.min.js': [
+						'server/app/vendor.js',
 						// same as client.js but without sourceMaps
-						'server/assets/js/client.min.js'
+						'server/app/client.min.js'
 					]
 				}
 			}
@@ -154,12 +145,12 @@ module.exports = function (grunt) {
 			dev: {
 				options: {
 					sourceMap: true,
-					sourceMapFilename: 'assets/css/index_raw.css.map',
+					sourceMapFilename: 'src/assets/css/index_raw.css.map',
 					sourceMapURL: 'index_raw.css.map',
 					sourceMapRootpath: '../../'
 				},
 				files: {
-					'assets/css/index_raw.css': 'assets/less/index.less'
+					'src/assets/css/index_raw.css': 'src/assets/less/index.less'
 				}
 			}
 		},
@@ -178,14 +169,14 @@ module.exports = function (grunt) {
 				map: true
 			},
 			dev: {
-				src: 'assets/css/index_raw.css',
-				dest: 'assets/css/index.css'
+				src: 'src/assets/css/index_raw.css',
+				dest: 'src/assets/css/index.css'
 			}
 		},
 
 		clean: {
-			less: ['assets/css/index_raw.*'],
-			js: ['assets/js/**/*min.js*'],
+			less: ['src/assets/css/index_raw.*'],
+			js: ['app/**/*min.js*'],
 			dist: ['<%= config.dist %>'],
 			server: ['<%= config.server %>'],
 			temp: ['temp']
@@ -300,7 +291,7 @@ module.exports = function (grunt) {
 				options: {},
 				files: [{
 					expand: true,
-					cwd: 'assets/img',
+					cwd: 'src/assets/img',
 					src: ['**/*.{png,jpg,gif,svg}'],
 					dest: '<%= config.dist %>/assets/img'
 				}]
@@ -325,6 +316,7 @@ module.exports = function (grunt) {
 		copy: {
 			dist: {
 				expand: true,
+				cwd: 'src',
 				src: [
 					'assets/css/*.min.css',
 					'assets/fonts/**/*',
@@ -332,66 +324,45 @@ module.exports = function (grunt) {
 				],
 				dest: '<%= config.dist %>/'
 			},
-			server: {
+			nodeModulesDist: {
 				expand: true,
 				src: [
+					'node_modules/bootstrap/fonts/**/*'
+				],
+				dest: '<%= config.dist %>/'
+			},
+			server: {
+				expand: true,
+				cwd: 'src',
+				src: [
 					'assets/css/**/*',
-					// 'assets/js/**/*',
 					'assets/fonts/**/*',
 					'assets/img/**/*',
-					'node_modules/bootstrap/fonts/**/*'
+					'node_modules/bootstrap/fonts/**/*',
+					'*.html',
+					'app/**/*',
+					'assets/**/*'
 				],
 				// ].concat(dependencyConfiguration.getDependenciesFileList()),
 				dest: '<%= config.server %>/'
 			},
-			handlebars: {
+			nodeModulesServer: {
 				expand: true,
 				src: [
-					'*.hbs',
-					'templates/*.hbs',
-					'partials/**/*.hbs',
-					'templates/helpers/helpers.js'
+					'node_modules/bootstrap/fonts/**/*'
 				],
-				dest: '<%= config.dist %>/handlebarsSources'
+				dest: '<%= config.server %>/'
 			}
 		},
-		jsdoc: {
-			dist: {
-				src: [
-					'assets/js/**/*.js',
-					'!assets/js/**/*.min.js',
-					'test/**/*.js'
-				],
-				options: {
-					destination: '<%= config.docs %>'
-				}
-			}
-		},
-
-		plato: {
-			options: {
-				jshint: grunt.file.readJSON('.jshintrc')
-			},
-			dist: {
-				files: {
-					'<%= config.reports %>': [
-						'assets/js/**/*.js',
-						'!assets/js/**/*.min.js',
-						'test/**/*.js'
-					]
-				}
-			}
-		},
-
 		browserSync: {
 			dev: {
 				bsFiles: {
 					src: [
-						'<%= config.server %>/assets/css/*.css',
-						'<%= config.server %>/assets/img/**/*.jpg',
-						'<%= config.server %>/assets/img/**/*.png',
-						'<%= config.server %>/assets/img/**/*.gif',
-						'<%= config.server %>/assets/js/**/*.js',
+						'<%= config.server %>/src/assets/css/*.css',
+						'<%= config.server %>/src/assets/img/**/*.jpg',
+						'<%= config.server %>/src/assets/img/**/*.png',
+						'<%= config.server %>/src/assets/img/**/*.gif',
+						'<%= config.server %>/src/app/**/*.js',
 						'<%= config.server %>/*.html'
 					]
 				},
@@ -400,29 +371,6 @@ module.exports = function (grunt) {
 							'<%= connect.dev.options.port %>',
 					watchTask: true
 				}
-			}
-		},
-
-		compress: {
-			dist: {
-				options: {
-					archive: 'dist-v<%= pkg.version %>.zip'
-				},
-				files: [{
-					src: ['<%= config.dist %>/**'],
-					dest: './'
-				}]
-			},
-			src: {
-				options: {
-					archive: 'src-v<%= pkg.version %>.zip'
-				},
-				files: [
-					// includes files in path
-					{src: ['./*', '!./*.zip', '!./*.sublime*'], dest: './', filter: 'isFile'},
-					// includes files in path and its subdirs
-					{src: ['assets/**', '!assets/css/**'], dest: './'}
-				]
 			}
 		},
 
@@ -505,25 +453,6 @@ module.exports = function (grunt) {
 				command: 'bower install'
 			}
 		},
-
-		generator: {
-			dev: {
-				files: [{
-					cwd: '.',
-					src: ['*.hbs'],
-					dest: '<%= config.server %>'
-				}],
-				options: {
-					helpers: templateHelpers,
-					partialsGlob: 'partials/**/*.hbs',
-					templates: 'templates',
-					templateExt: 'hbs',
-					defaultTemplate: 'default',
-					frontmatterType: 'yaml'
-				}
-			}
-		},
-
 		htmlmin: {
 			dist: {
 				options: {
@@ -550,7 +479,7 @@ module.exports = function (grunt) {
 				livereload: true
 			},
 			scripts: {
-				files: ['assets/js/**/*.js'],
+				files: ['src/app/**/*.js', 'src/app/**/*.html'],
 				tasks: ['newer:eslint:fix', 'newer:copy:server', 'newer:browserify:clientDevelopment'],
 				options: {
 					spawn: false
@@ -564,7 +493,7 @@ module.exports = function (grunt) {
 				}
 			},
 			css: {
-				files: ['assets/less/**/*.less'],
+				files: ['src/assets/less/**/*.less'],
 				tasks: ['less:dev', 'autoprefixer', 'clean:less', 'newer:copy:server'],
 				options: {
 					spawn: false
@@ -572,7 +501,7 @@ module.exports = function (grunt) {
 			},
 			html: {
 				files: ['*.hbs', 'templates/*.hbs', 'partials/*.hbs', 'templates/helpers/helpers.js'],
-				tasks: ['generator', 'newer:htmllint', 'newer:bootlint'],
+				tasks: ['newer:htmllint', 'newer:bootlint'],
 				options: {
 					spawn: false
 				}
@@ -592,15 +521,15 @@ module.exports = function (grunt) {
 		browserify: {
 			vendor: {
 				src: [],
-				dest: 'server/assets/js/vendor.js',
+				dest: 'server/app/vendor.js',
 				options: {
 					// maybe we could automize this by using dependencies from package.json
 					require: ['jquery']
 				}
 			},
 			clientDevelopment: {
-				src: ['assets/js/**/*.js'],
-				dest: 'server/assets/js/client.js',
+				src: ['src/app/**/*.js'],
+				dest: 'server/app/client.js',
 				options: {
 					browserifyOptions: {
 						debug: true
@@ -616,8 +545,8 @@ module.exports = function (grunt) {
 				}
 			},
 			clientProduction: {
-				src: ['assets/js/**/*.js'],
-				dest: 'server/assets/js/client.min.js',
+				src: ['src/app/**/*.js'],
+				dest: 'server/app/client.min.js',
 				options: {
 					browserifyOptions: {
 						debug: false
@@ -672,7 +601,6 @@ module.exports = function (grunt) {
 			'copy:server',
 			'browserify:vendor',
 			'browserify:clientDevelopment',
-			'generator',
 			'cssmin:npmLibsDevelopment',
 			'lint'
 		]
@@ -719,26 +647,21 @@ module.exports = function (grunt) {
 		'`grunt build` builds production ready sources to dist directory.', [
 			'clean:dist',
 			'lint',
-			// 'uglify:concatenate',
 			'less:dev',
 			'autoprefixer',
 			'clean:less',
 			'uncss',
 			'cssmin:assets',
 			'imagemin',
-			'generator',
 			'processhtml',
 			'htmlmin',
 			'browserify:vendor',
 			'browserify:clientProduction',
 			'copy',
-			// 'uglify:npm',
 			'uglify:browserifyOutput',
 			'cssmin:npmLibsProduction',
 			'usebanner',
 			'clean:temp',
-			// 'plato',  Doesn't work with es6 per default. Transpile all files to a separate directory or use another plugin!?
-			'jsdoc',
 			'security'
 		]
 	);
@@ -750,17 +673,17 @@ module.exports = function (grunt) {
 		['connect:dist']
 	);
 	// Relase tasks
-	grunt.registerTask('releasePatch',
-		'`grunt releasePatch` builds the current sources, bumps version number (0.0.1) and creates zip.files.',
-		['bump-only:patch', 'build', 'clean:js', 'changelog', 'gitadd', 'bump-commit', 'compress']
+	grunt.registerTask('release:patch',
+		'`grunt release:patch` builds the current sources, bumps version number (0.0.1) and creates zip.files.',
+		['bump-only:patch', 'build', 'clean:js', 'changelog', 'gitadd', 'bump-commit']
 	);
-	grunt.registerTask('releaseMinor',
-		'`grunt releaseMinor` builds the current sources, bumps version number (0.1.0) and creates zip.files.',
-		['bump-only:minor', 'build', 'clean:js', 'changelog', 'gitadd', 'bump-commit', 'compress']
+	grunt.registerTask('release:minor',
+		'`grunt release:minor` builds the current sources, bumps version number (0.1.0) and creates zip.files.',
+		['bump-only:minor', 'build', 'clean:js', 'changelog', 'gitadd', 'bump-commit']
 	);
-	grunt.registerTask('releaseMajor',
-		'`grunt releaseMajor` builds the current sources, bumps version number (1.0.0) and creates zip.files.',
-		['bump-only:major', 'build', 'clean:js', 'changelog', 'gitadd', 'bump-commit', 'compress']
+	grunt.registerTask('release:major',
+		'`grunt release:major` builds the current sources, bumps version number (1.0.0) and creates zip.files.',
+		['bump-only:major', 'build', 'clean:js', 'changelog', 'gitadd', 'bump-commit']
 	);
 
 	// Security checks
@@ -768,4 +691,9 @@ module.exports = function (grunt) {
 		'`grunt security` checks the node dependencies for known vulnerabilities.',
 		['nsp', 'david']
 	);
+
+	// Aliases for »backward compatability«.
+	grunt.registerTask('releasePatch', ['release:patch']);
+	grunt.registerTask('releaseMinor', ['release:minor']);
+	grunt.registerTask('releaseMajor', ['release:major']);
 };
