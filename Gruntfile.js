@@ -247,7 +247,7 @@ module.exports = function (grunt) {
 				},
 				files: {
 					'<%= config.dist %>/assets/css/index.uncss.min.css': ['temp/index.css'],
-					'<%= config.dist %>/assets/css/index.min.css': ['assets/css/index.css']
+					'<%= config.dist %>/assets/css/index.min.css': ['src/assets/css/index.css']
 				}
 			},
 			npmLibsProduction: {
@@ -255,7 +255,7 @@ module.exports = function (grunt) {
 					keepSpecialComments: 0
 				},
 				files: {
-					'<%= config.dist %>/node_modules/libs.min.css': bundleCSSFiles
+					'<%= config.dist %>/assets/css/libs.min.css': bundleCSSFiles
 				}
 			},
 			npmLibsDevelopment: {
